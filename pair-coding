@@ -1,0 +1,335 @@
+package com.company;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
+import java.io.PrintWriter;
+import java.io.FileNotFoundException;
+public class Main {
+    public static void main(String[] args) throws IOException {
+        int a1, a2, a3, a4, x1, x2, x3, x4;
+        System.out.println("请输入一个整数区间作为题目的区间");//确定题目数值范围
+        while (true) {
+            a1 = 0;
+            a2 = 0;
+            a1 = enternum();
+            a2 = enternum();
+            if (a1 > a2) {
+                System.out.println("请先输入一个较小的数值");
+                continue;
+            } else break;
+        }
+        System.out.println("请输入一个整数区间作为答案的区间");//确定答案数值范围
+        while (true) {
+            a3 = 0;
+            a4 = 0;
+            a3 = enternum();
+            a4 = enternum();
+            if (a3 > a4) {
+                System.out.println("请先输入一个较小的数值");
+                continue;
+            }
+            break;
+        }
+        System.out.println("你要生成的题目数量为");//确定题目数量
+        int c1 = 0, c2 = 0;
+        ArrayList quetion = new ArrayList();
+        ArrayList<Integer> answer = new ArrayList<Integer>();
+        while (true) {
+            c1 = enternum();
+            if (c1 <= 0) {
+                System.out.println("请输入正整数");
+                continue;
+            } else {
+                break;
+            }
+        }
+       while (true) {
+            int f0 = 0, f1 = 0, f2 = 0, f3 = 0, f4 = 0, f5 = 0, f6 = 0;
+            x1 = a1 + (int) (Math.random() * (a2 - a1 + 1));           //根据题目数值范围生成随机数
+            x2 = a1 + (int) (Math.random() * (a2 - a1 + 1));
+            x3 = a1 + (int) (Math.random() * (a2 - a1 + 1));
+            x4 = a1 + (int) (Math.random() * (a2 - a1 + 1));
+            if(x1==0||x2==0||x3==0||x4==0){continue;}   //防止除数出现0
+            String sym1, sym2, sym3;
+            if (flag(f0).equals("1")) {          //含有一个运算符的算式
+                sym1 = ch1(f3);
+                String equ = c(x1) + sym1 + c(x2);   //a+b
+                int x = 0;                      //以下部分通过cal方法进行计算
+                x = cal(equ);
+                if (x < a3 || x > a4) {         //判断答案是否在规定的范围内
+                    continue;                   //如果不在范围内则跳出循环不加次数
+                }
+                quetion.add(equ + '=');
+                answer.add(x);
+            } else if (flag(f1).equals("2")) {   //含有两个运算符的算式
+                sym2 = ch1(f3);
+                sym3 = ch1(f4);
+                String equ = "";
+                int x = 0;
+                if (flag(f5).equals("1")) {     //随机添加括号
+                    equ = c(x1) + sym2 + c(x2) + sym3 + c(x3);
+                } else if (flag(f5).equals("2")) {
+                    equ = bracket(c(x1) + sym2 + c(x2)) + sym3 + c(x3);
+                } else if (flag(f5).equals("3")) {
+                    equ = c(x1) + sym2 + bracket(c(x2) + sym3 + c(x3));
+                } else {
+                    continue;
+                }
+                x = cal(equ);
+                if (x < a3 || x > a4) {
+                    continue;
+                }
+                quetion.add(equ + "=");
+                answer.add(x);
+            } else if (flag(f2).equals("3")) {       //含有三个运算符的算式
+                sym1 = ch1(f3);
+                sym2 = ch1(f3);
+                sym3 = ch1(f4);
+                String equ = "";
+                int x = 0;
+                if (flag(f6).equals("0")) {         //随机添加括号
+                    equ = c(x1) + sym1 + c(x2) + sym2 + c(x3) + sym3 + c(x4);
+                } else if (flag(f6).equals("1")) {
+                    equ = bracket(c(x1) + sym1 + c(x2)) + sym2 + c(x3) + sym3 + c(x4);
+                } else if (flag(f6).equals("2")) {
+                    equ = c(x1) + sym1 + bracket(c(x2) + sym2 + c(x3)) + sym3 + c(x4);
+                } else if (flag(f6).equals("3")) {
+                    equ = c(x1) + sym1 + c(x2) + sym2 + bracket(c(x3) + sym3 + c(x4));
+                } else {
+                    continue;
+                }
+                x = cal(equ);
+                if (x < a3 || x > a4) {
+                    continue;
+                }
+                quetion.add(equ + "=");
+                answer.add(x);
+            } else continue;
+            c2++;
+            if (c2 == c1) break;
+        }
+        System.out.println(quetion.size());
+        System.out.println(answer.size());
+        int correct = 0, wrong = 0;
+       PrintWriter exercise = new PrintWriter("exercise.txt");//在文件中写入题目
+        for (int i = 0; i < quetion.size(); i++){
+            System.out.println(quetion.get(i));
+            exercise.println(quetion.get(i));
+            exercise.flush();
+        }
+        exercise.close();
+        PrintWriter answer0 = new PrintWriter("answer.txt");//在文件中写入答案
+        for (int i = 0; i < quetion.size(); i++){
+            System.out.println(answer.get(i));
+            answer0.println(answer.get(i));
+            answer0.flush();
+        }
+        answer0.close();
+        for (int i = 0; i < quetion.size(); i++) {
+            int a0 = 1;
+            if (a0 == answer.get(i)) {
+                correct++;
+            } else {
+                wrong++;
+            }
+        }
+        PrintWriter grade = new PrintWriter("grade.txt");//在文件中写入成绩
+        int repeat=0;
+        ArrayList re= new ArrayList();                           //查找答案重复的题目
+        for (int x=0;x<quetion.size();x++){
+            for(int y=0;y<quetion.size();y++){
+                if(answer.get(x)==answer.get(y)){
+                    repeat++;
+                    re.add(quetion.get(x)+"repeat"+quetion.get(y));
+                }
+            }
+        }
+        System.out.println("正确题目个数为" + correct);
+        System.out.println("错误题目个数为" + wrong);
+        System.out.println("下面是你做错的题目");
+        grade.print("正确题目个数为" + correct+"\n"+"错误题目个数为" + wrong+"\n"+"答案重复的题目个数为"+repeat+"\n");
+        for (int i = 0; i < re.size(); i++) {
+            System.out.println(re.get(i));
+            grade.println(re.get(i));
+            grade.flush();
+        }
+        grade.close();
+        String a="1/0";
+        System.out.println(a+"="+cal(a));
+
+    }
+    public static int enternum() {       //判断是否输入的为整数
+        try {
+            Scanner sc = new Scanner(System.in);
+            int a = sc.nextInt();
+            return a;
+        } catch (Exception e) {
+            System.out.println("请输入正整数");
+            enternum();
+        }
+        return 0;
+    }
+
+    public static String ch1(int a) {
+        Random r = new Random();
+        int x = r.nextInt(4);
+        String f = "";
+        if (x == 0) {
+            f = "+";
+        }
+        if (x == 1) {
+            f = "-";
+        }
+        if (x == 2) {
+            f = "*";
+        }
+        if (x == 3) {
+            f = "/";
+        }
+        return f;
+    } //随机生产运算符
+
+    public static String flag(int a) {
+        Random r = new Random();
+        a = r.nextInt(4);
+        if (a == 1) {
+            return "1";
+        } else if (a == 2) {
+            return "2";
+        } else if (a == 3) {
+            return "3";
+        } else if (a == 0) {
+            return "4";
+        }
+        return "";
+    }//
+    public static String bracket(String a){
+        return "("+a+")";
+    }//加括号
+
+    public static int cal(String a) {
+        StackArray numStack = new StackArray(100);
+        StackArray operStack = new StackArray(100);
+        //定义需要的相关变量
+        int index = 0;
+        int num1 = 0;
+        int num2 = 0;
+        int oper = 0;
+        int res =0;
+        char ch = ' ';//将每次扫描到的保存到ch
+        String keepNum = "";//用来扫描多位数
+
+        //使用while来扫描expression
+        while(true){
+            //依次得到expression的每个字符
+            ch = a.substring(index,index+1).charAt(0);
+            if (operStack.isOper(ch)){//当前是运算符
+                //判断当前的栈是否为空
+                if(operStack.isEmpty()){//当前栈为空直接放入
+                    operStack.push(ch);
+                }else{//当前的操作符栈中有操作符
+                    if(ch=='('){
+                        operStack.push(ch);
+                    }else if(ch==')'){
+                        while (!(operStack.peek()=='(')){
+                            num1 = numStack.pop();
+                            num2 = numStack.pop();
+                            oper = operStack.pop();
+                            numStack.push(numStack.cal(num1,num2,oper));
+                        }
+                        operStack.pop();
+                    }else {
+                        if(operStack.priority(ch)<=operStack.priority(operStack.peek())){
+                            //如果新读取的操作符的优先级小于等于当前栈顶操作符的优先级那么我们需要从操作数
+                            //栈中弹出两个操作数进行运算
+                            num1 = numStack.pop();
+                            num2 = numStack.pop();
+                            oper = operStack.pop();
+                            numStack.push(numStack.cal(num1,num2,oper));
+                            operStack.push(ch);
+                        }else{
+                            operStack.push(ch);
+                        }
+                    }
+                }
+            }else{//当前的是数字
+                //对多位数的处理
+                keepNum += ch;
+                if (index == a.length()-1){
+                    //如果ch已经是我们expression中的最后一位那么我们就直接入栈
+                    numStack.push(Integer.parseInt(keepNum));
+                }else{//当前的运算符不是expression的最后一位
+                    if (operStack.isOper(a.substring(index+1,index+2).charAt(0))){//如果后一位是运算符，则入栈
+                        numStack.push(Integer.parseInt(keepNum));
+                        keepNum="";
+                    }
+                }
+            }
+            //让index+1，并判断是否扫描到了expression最后
+            index ++;
+            if(index==a.length()){
+                break;
+            }
+        }
+
+        while (true){
+            if(operStack.isEmpty()){
+                //当我们的符号栈为空的时候则计算到最后的结果，数栈中只有一个结果那就是我们的结果
+                break;
+            }
+            num1 =  numStack.pop();
+            num2 =  numStack.pop();
+            oper =  operStack.pop();
+            res = numStack.cal(num1,num2,oper);
+            numStack.push(res);
+        }
+        int resUltimately = numStack.pop();
+        return resUltimately;
+
+    } //四则运算
+    public static String c(int a) {       //转字符串
+        return Integer.toString(a);
+    }
+
+
+}
+
+        if(oper =='*'||oper == '/'){
+            return 1;
+        }else if (oper == '+' || oper == '-') {
+            return 0;
+        } else {
+            return -1; // 假定目前的表达式只有 +, - , * , /
+        }
+
+    }
+
+    //判断是不是一个运算符
+    public boolean isOper(char val) {
+        return val == '+' || val == '-' || val == '*' || val == '/'||val=='('||val==')';
+    }
+    //计算方法
+    public int cal(int num1, int num2, int oper) {
+        int res = 0; // res 用于存放计算的结果
+        switch (oper) {
+            case '+':
+                res = num1 + num2;
+                break;
+            case '-':
+                res = num2 - num1;// 注意顺序
+                break;
+            case '*':
+                res = num1 * num2;
+                break;
+            case '/':
+                res = num2 / num1;
+                break;
+            default:
+                break;
+        }
+        return res;
+
+    }
+}
